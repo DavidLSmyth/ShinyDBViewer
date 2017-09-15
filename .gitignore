@@ -2,6 +2,8 @@
 .Rhistory
 .Rapp.history
 
+database_info.txt
+
 _DS_Store
 
 # Session Data files

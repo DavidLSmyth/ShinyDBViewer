@@ -6,7 +6,7 @@
 #x=dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
 library('RMySQL')
 library('shiny')
-library('odbc')
+#library('odbc')
 library('DBI')
 library('DT')
 library('rhandsontable')
@@ -49,8 +49,8 @@ shinyServer(function(session,input, output) {
     print(paste('DRIVER=',DRIVER,';SERVER=',input$server_name,';PORT=1443;DATABASE=',input$database,';UID=',input$user_id,';PWD=',input$password, sep = ''))
     #connection <- odbc::dbConnect( odbc(), .connection_string= 'DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=orrecolabs.database.windows.net;DATABASE=orreco_labs;UID=orrecoadmin@orrecolabs;PWD=password123!')
     connection <<- tryCatch({
-      odbc::dbConnect(odbc(), .connection_string= paste('DRIVER=',DRIVER,';SERVER=',input$server_name,';PORT=1443;DATABASE=',input$database,';UID=',input$user_id,';PWD=',input$password, sep = ''))
-      },
+      dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
+    },
       error = function(e){
         print(paste('Error output: ',e))
         NA
