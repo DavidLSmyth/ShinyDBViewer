@@ -4,7 +4,7 @@ library(shinydashboard)
 library(DT)
 library(rhandsontable)
 
-dashboard_head <- dashboardHeader(title = 'Database analyser')
+dashboard_head <- dashboardHeader(title = 'MySQL Database analyser')
 dashboard_side <- dashboardSidebar(
   sidebarMenu(
     tags$link(rel = "stylesheet", type = "text/css", href = "main.css"),
@@ -17,7 +17,9 @@ dashboard_side <- dashboardSidebar(
     menuItem('Run uploading tests', tabName = 'run_tests'),
     menuItem('Update table info', tabName = 'update_table_info'),
     menuItem('RunSQL', tabName = 'run_SQL'),
-    div(style='text-align: center',actionButton('refresh_database_connection',label = 'Refresh database', icon = icon('refresh')))
+    div(style='text-align: center',actionButton('refresh_database_connection',label = 'Refresh database connection', icon = icon('refresh'))),
+    div(style='text-align: center',actionButton('disconnect_from_db',label = 'Disconnect from database', icon = icon(''))),
+    div(style='text-align: center',actionButton('reset_database_connections',label = 'Reset all database connctions', icon = icon('reset')))
     
   )
 )
@@ -28,21 +30,23 @@ dashboard_body <- dashboardBody(
           column(4),
           column(4, style = 'text-align: center',
               fluidRow(style = 'text-align: center',
-                textInput('server_name', label = 'Enter the server name:', value = 'davidsmyth.mysql.pythonanywhere-services.com')
+                       #x=dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
+                       
+                textInput('server_name', label = 'Enter the server name:', value = 'mysql1.it.nuigalway.ie')
               ),
               fluidRow(
-                textInput('user_id', label = 'Enter your user id:', value = 'davidsmyth')
+                textInput('user_id', label = 'Enter your user id:', value = 'mydb2967sd')
               ),
               fluidRow(
-                passwordInput('password', label = 'Enter your password:',value = 'password123!')
+                passwordInput('password', label = 'Enter your password:',value = 'pu7xun')
               ),
               fluidRow(
                 numericInput('port', label = 'Please enter the port number:', value = 3306, min = 0, max = 64000)
               ),
               fluidRow(
-                textInput('database', label = 'Please enter the database name:', value = 'davidsmyth$TestDB')
+                textInput('database', label = 'Please enter the database name:', value = 'mydb2967')
               ),
-              fluidRow(
+              fluidRow(style = 'padding-right: 200px',
                 actionButton('database_login', label = 'Attempt Database Login', width = '220px')
               )
 			  #textOutput('database_login_result')
@@ -76,7 +80,7 @@ dashboard_body <- dashboardBody(
             ),
             br(),
             hr(),
-            fluidRow(
+            fluidRow(style = 'text-align: center',
               DT::dataTableOutput('update_table_output'),
               rHandsontableOutput('update_table_updated_values'),
               actionButton('update_table_output_button', label = 'Update row')

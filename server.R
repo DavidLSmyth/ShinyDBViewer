@@ -7,7 +7,7 @@
 library('RMySQL')
 library('shiny')
 #library('odbc')
-library('DBI')
+#library('DBI')
 library('DT')
 library('rhandsontable')
 source('helpers.r')
@@ -19,6 +19,23 @@ DRIVER= '{ODBC Driver 13 for SQL Server}'
 shinyServer(function(session,input, output) {
   connected <- reactiveVal(FALSE)
   sql_query_result<-reactiveVal(data.frame())
+  
+  observeEvent(input$reset_database_connections,{
+    lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
+    connected(FALSE)
+    showNotification('All Database connections have been reset', type = 'message')
+  })
+  
+  observeEvent(input$disconnect_from_db,{
+    if(connected()){
+      dbDisconnect(connection)
+      connected(FALSE)
+      showNotification('Successfully disconnected from the database', type = 'message')
+    }
+    else{
+      showNotification('Not connected to a database yet!', type = 'warning')
+    }
+  })
   
   output$test_report <- renderUI({
     #create dependency on rerun tests to trigger this
@@ -46,7 +63,7 @@ shinyServer(function(session,input, output) {
   #maybe should try and connect via python/c++? Not sure if this is worth looking into
   observeEvent(input$database_login,{
     print('attempting to connect with connection string: ')
-    print(paste('DRIVER=',DRIVER,';SERVER=',input$server_name,';PORT=1443;DATABASE=',input$database,';UID=',input$user_id,';PWD=',input$password, sep = ''))
+    print(paste('DRIVER=','MySQL',';SERVER=',input$server_name,';PORT=1443;DATABASE=',input$database,';UID=',input$user_id,';PWD=',input$password, sep = ''))
     #connection <- odbc::dbConnect( odbc(), .connection_string= 'DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=orrecolabs.database.windows.net;DATABASE=orreco_labs;UID=orrecoadmin@orrecolabs;PWD=password123!')
     connection <<- tryCatch({
       dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
@@ -56,7 +73,7 @@ shinyServer(function(session,input, output) {
         NA
     }
     )
-    print(connection)
+    #print(paste('connection: ',connection))
     if(!is.na(connection)){
       print('no issues in making connection')
       connected(TRUE)
@@ -68,13 +85,15 @@ shinyServer(function(session,input, output) {
     print(connected())
     showNotification(ifelse(connected(), 'Database was connected to successfully','Database connection attempt failed'))
   })
-
+  #MySQL version
   update_tables <- observe({
+    #gets all tables in database
     input$refresh_database_connection
     input$database_login
     if(connected()){
       print('updating select input tables')
-      res<-dbFetch(dbSendQuery(connection,"SELECT name FROM sys.objects WHERE [Type] = 'U'"),Inf)$name
+      #dbClearResult(dbListResults(connection))
+      res<-dbListTables(connection)
       print('res')
       print(res)
       updateSelectInput(session,'update_table', choices = res,
@@ -84,12 +103,28 @@ shinyServer(function(session,input, output) {
     }
   })
   
+  #SQL Server Version
+  # update_tables <- observe({
+  #   input$refresh_database_connection
+  #   input$database_login
+  #   if(connected()){
+  #     print('updating select input tables')
+  #     res<-dbFetch(dbSendQuery(connection,"SELECT name FROM sys.objects WHERE [Type] = 'U'"),Inf)$name
+  #     print('res')
+  #     print(res)
+  #     updateSelectInput(session,'update_table', choices = res,
+  #                       selected = res[1])
+  #     updateSelectInput(session, 'data_summary_choose_table', choices = res, 
+  #                       selected = res[1])
+  #   }
+  # })
+  
   output$table_summary <- renderDataTable({
-    input$data_summary_choose_table
+    DT::datatable(input$data_summary_choose_table)
   })
   
   get_table_output_data <- reactive({
-    return(data.frame(dbReadTable(connection, as.character(input$update_table))))
+    return(data.frame(RMySQL::dbReadTable(connection, as.character(input$update_table))))
   })
 
   
@@ -97,7 +132,10 @@ shinyServer(function(session,input, output) {
     #create dependencies on refresh database and connect to datbase buttons to update what the person sees
     input$refresh_database_connection
     input$database_login
-    DT::datatable(get_table_output_data(), 
+    input$update_table_output_button
+    input$data_summary_choose_table
+    print('refreshing editable table')
+    DT::datatable(dbFetch(dbSendQuery(connection, paste('SELECT * FROM',input$data_summary_choose_table)), Inf), 
           filter = 'top', rowname = FALSE,options = list(scrollX = TRUE,
           scrollY=TRUE,
           pageLength=30,
@@ -144,6 +182,8 @@ shinyServer(function(session,input, output) {
     "WHERE",paste(input$update_table,'_id',sep=''),'=',row_data)
     print('update_statement')
     print(update_statement)
+    db_exection_res <- dbExecute(connection, update_statement)
+    showNotification(paste('Updated',db_exection_res,'rows'))
   })
   
   #if the user wants to query the database, let them
@@ -157,9 +197,12 @@ shinyServer(function(session,input, output) {
         sql_query_result(display_table)
         print(display_table)
         dbClearResult(res)
+        showNotification('Successfully executed query', type = 'message')
     },
     error = function(e) {
         print('could not execute query')
+        showNotification(div(style= 'font-size: 32px;','Could not execute query'), type = 'error')
+        sql_query_result(data.frame())
     })
     
   })
