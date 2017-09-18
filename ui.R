@@ -29,6 +29,11 @@ dashboard_body <- dashboardBody(
           br(),
           column(4),
           column(4, style = 'text-align: center',
+             fluidRow(style = 'text-align: center',
+                      #x=dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
+                      
+                      selectInput('database_type', label = 'Please Select a Database Management System',choices = list('MySQL', 'SQLServer', 'SQLite', 'Postgres'), selected = 'MySQL')
+             ),
               fluidRow(style = 'text-align: center',
                        #x=dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
                        

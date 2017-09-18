@@ -11,7 +11,10 @@ library('shiny')
 library('DT')
 library('rhandsontable')
 source('helpers.r')
-#helpers contains attempt_db_connect, run_sql
+#attempt_db_connect
+#run_sql
+#
+
 #connected<-FALSE
 
 DRIVER= '{ODBC Driver 13 for SQL Server}'
@@ -21,6 +24,7 @@ shinyServer(function(session,input, output) {
   sql_query_result<-reactiveVal(data.frame())
   
   observeEvent(input$reset_database_connections,{
+    #reset connections based on database type
     lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
     connected(FALSE)
     showNotification('All Database connections have been reset', type = 'message')
