@@ -1,10 +1,14 @@
-#connection <- odbc::dbConnect( odbc(), .connection_string= 'DRIVER={MySQL ODBC 5.2 ANSI Driver};PORT=1433;SERVER=orrecolabs.database.windows.net;DATABASE=orreco_labs;UID=orrecoadmin@orrecolabs;PWD=password123!')
 #
 #mydb = dbConnect(MySQL(), user='davidsmyth', password='password123!', dbname='davidsmyth$TestDB', host='davidsmyth.mysql.pythonanywhere-services.com')
 #ToDo: allow selection of multiple rows to update multiple players
 
 #x=dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
+x=dbConnect(dbDriver("SQLServer"), user="SA", password="password123!", dbname="testDB", host="localhost", port=1433)
+x = odbcDriverConnect(connection = "DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=localhost;DATABASE=testDB;UID=SA;PWD=")
+
+library('RODBC')
 library('RMySQL')
+library('RSQLServer')
 library('shiny')
 #library('odbc')
 #library('DBI')
@@ -24,14 +28,20 @@ shinyServer(function(session,input, output) {
   sql_query_result<-reactiveVal(data.frame())
   
   observeEvent(input$reset_database_connections,{
-    #reset connections based on database type
-    lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
+    #reset connections based on database type MySQL version
+    if(input$database_type = 'MySQL'){
+      lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
+    }
+    else if(input$database_type == 'SQLServer'){
+      lapply(dbListConnections( dbDriver( drv = "SQLServer")), dbDisconnect)
+    }
     connected(FALSE)
     showNotification('All Database connections have been reset', type = 'message')
   })
   
   observeEvent(input$disconnect_from_db,{
     if(connected()){
+      #DBI method
       dbDisconnect(connection)
       connected(FALSE)
       showNotification('Successfully disconnected from the database', type = 'message')
@@ -54,7 +64,8 @@ shinyServer(function(session,input, output) {
       reports <- list.files('/Users/Documents/AzureDBSetup/azureDBSetupgithub/PythonUploadToAzure/AzureInterfaceCode/reports/database_uploading_tests')
       progress$set(value = 0.9, message='Rendering HTML')
       setwd('/Users/Documents/AzureDBSetup/azureDBSetupgithub/PythonUploadToAzure/AzureInterfaceCode/reports/database_uploading_tests')
-      return(HTML(paste(sapply(reports,includeHTML), collapse = '\n')))
+      #return(HTML(paste(sapply(reports,includeHTML), collapse = '\n')))
+      return(HTML('Run your applications database tests and direct the output here!'))
     }
   })
   
@@ -68,9 +79,14 @@ shinyServer(function(session,input, output) {
   observeEvent(input$database_login,{
     print('attempting to connect with connection string: ')
     print(paste('DRIVER=','MySQL',';SERVER=',input$server_name,';PORT=1443;DATABASE=',input$database,';UID=',input$user_id,';PWD=',input$password, sep = ''))
-    #connection <- odbc::dbConnect( odbc(), .connection_string= 'DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=orrecolabs.database.windows.net;DATABASE=orreco_labs;UID=orrecoadmin@orrecolabs;PWD=password123!')
+    #connection <- odbc::dbConnect( odbc(), .connection_string= 'DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=;DATABASE=;UID=orrecoad;PWD=password123!')
     connection <<- tryCatch({
-      dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
+      if(input$database_type == 'MySQL'){
+        dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
+      }
+      else if(input$database_type == 'SQLServer'){
+        odbc::dbConnect( odbc(), .connection_string= 'DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=orrecolabs.database.windows.net;DATABASE=orreco_labs;UID=orrecoadmin@orrecolabs;PWD=password123!')
+      }
     },
       error = function(e){
         print(paste('Error output: ',e))
