@@ -1,11 +1,14 @@
 #
 #mydb = dbConnect(MySQL(), user='davidsmyth', password='password123!', dbname='davidsmyth$TestDB', host='davidsmyth.mysql.pythonanywhere-services.com')
 #ToDo: allow selection of multiple rows to update multiple players
-
+setwd('/home/david/Dropbox/SoftwareDevelopment/ShinyDBViewer')
 #x=dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
 x=dbConnect(dbDriver("SQLServer"), user="SA", password="password123!", dbname="testDB", host="localhost", port=1433)
 x = odbcDriverConnect(connection = "DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=localhost;DATABASE=testDB;UID=SA;PWD=")
-
+x <- RSQLite::dbConnect(dbDriver('SQLite'), dbname="testDB.db")
+query <- dbListTables(x)
+fetch(query)
+library('RSQLite')
 library('RODBC')
 library('RMySQL')
 library('RSQLServer')
