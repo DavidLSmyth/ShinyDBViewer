@@ -1,39 +1,40 @@
-#
+#code to connect to test DB
 #mydb = dbConnect(MySQL(), user='davidsmyth', password='password123!', dbname='davidsmyth$TestDB', host='davidsmyth.mysql.pythonanywhere-services.com')
 #ToDo: allow selection of multiple rows to update multiple players
-setwd('/home/david/Dropbox/SoftwareDevelopment/ShinyDBViewer')
+#setwd('/home/david/Dropbox/SoftwareDevelopment/ShinyDBViewer')
 #x=dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
-x=dbConnect(dbDriver("SQLServer"), user="SA", password="password123!", dbname="testDB", host="localhost", port=1433)
-x = odbcDriverConnect(connection = "DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=localhost;DATABASE=testDB;UID=SA;PWD=")
-x <- RSQLite::dbConnect(dbDriver('SQLite'), dbname="testDB.db")
-query <- dbListTables(x)
-fetch(query)
+#x=dbConnect(dbDriver("SQLServer"), user="SA", password="password123!", dbname="testDB", host="localhost", port=1433)
+#x = odbcDriverConnect(connection = "DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=localhost;DATABASE=testDB;UID=SA;PWD=")
+#x <- RSQLite::dbConnect(dbDriver('SQLite'), dbname="testDB.db")
+#query <- dbListTables(x)
+#fetch(query)
+#DRIVER= '{ODBC Driver 13 for SQL Server}'
+
 library('RSQLite')
 library('RODBC')
 library('RMySQL')
-library('RSQLServer')
 library('shiny')
-#library('odbc')
-#library('DBI')
 library('DT')
 library('rhandsontable')
-source('helpers.r')
-#attempt_db_connect
-#run_sql
-#
+source('../Utils/helpers.r')
 
-#connected<-FALSE
 
-DRIVER= '{ODBC Driver 13 for SQL Server}'
+
 
 shinyServer(function(session,input, output) {
+  
   connected <- reactiveVal(FALSE)
   sql_query_result<-reactiveVal(data.frame())
   
+  #observeEvent(input$database_type){
+  #retitle and update default logins
+  #  update
+  #}
+  
   observeEvent(input$reset_database_connections,{
     #reset connections based on database type MySQL version
-    if(input$database_type = 'MySQL'){
-      lapply( dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
+    if(input$database_type == 'MySQL'){
+      lapply(dbListConnections( dbDriver( drv = "MySQL")), dbDisconnect)
     }
     else if(input$database_type == 'SQLServer'){
       lapply(dbListConnections( dbDriver( drv = "SQLServer")), dbDisconnect)
@@ -60,15 +61,23 @@ shinyServer(function(session,input, output) {
     progress <- shiny::Progress$new()
     on.exit(progress$close())
     if(connected()){
-      setwd('/Users/davidsmyth/Documents/AzureDBSetup/azureDBSetupgithub/PythonUploadToAzure/AzureInterfaceCode')
-      progress$set(value = 0.30, message='Running test scripts')
-      system('python3 /Users/Documents/AzureDBSetup/azureDBSetupgithub/PythonUploadToAzure/database_test_code/uploadToDataBaseTestSuite.py')
-      progress$set(value = 0.75, message='Reading in test output')
-      reports <- list.files('/Users/Documents/AzureDBSetup/azureDBSetupgithub/PythonUploadToAzure/AzureInterfaceCode/reports/database_uploading_tests')
-      progress$set(value = 0.9, message='Rendering HTML')
-      setwd('/Users/Documents/AzureDBSetup/azureDBSetupgithub/PythonUploadToAzure/AzureInterfaceCode/reports/database_uploading_tests')
-      #return(HTML(paste(sapply(reports,includeHTML), collapse = '\n')))
-      return(HTML('Run your applications database tests and direct the output here!'))
+      # change directory to where your database tests are located
+      # setwd('')
+      # progress$set(value = 0.30, message='Running test scripts')
+      
+      #edit this line to call the database test scripts, which should generate a html output
+      # system('python3 ')
+      # progress$set(value = 0.75, message='Reading in test output')
+      
+      # reserve a section that shows the html files containing the tests
+      # reports <- list.files('')
+      # progress$set(value = 0.9, message='Rendering HTML')
+      # setwd('')
+      # #return(HTML(paste(sapply(reports,includeHTML), collapse = '\n')))
+      return(HTML("Run your application's database tests and direct the output here!"))
+    }
+    else{
+      return(HTML("Run your application's database tests and direct the output here!"))
     }
   })
   
@@ -82,13 +91,12 @@ shinyServer(function(session,input, output) {
   observeEvent(input$database_login,{
     print('attempting to connect with connection string: ')
     print(paste('DRIVER=','MySQL',';SERVER=',input$server_name,';PORT=1443;DATABASE=',input$database,';UID=',input$user_id,';PWD=',input$password, sep = ''))
-    #connection <- odbc::dbConnect( odbc(), .connection_string= 'DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=;DATABASE=;UID=orrecoad;PWD=password123!')
     connection <<- tryCatch({
       if(input$database_type == 'MySQL'){
-        dbConnect(dbDriver("MySQL"), user="mydb2967sd", password="pu7xun", dbname="mydb2967", host="mysql1.it.nuigalway.ie", port=3306)
+        dbConnect(dbDriver("MySQL"), user=input$user_id, password=input$password, dbname=input$database, host=input$server_name, port=as.numeric(input$port))
       }
       else if(input$database_type == 'SQLServer'){
-        odbc::dbConnect( odbc(), .connection_string= 'DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=orrecolabs.database.windows.net;DATABASE=orreco_labs;UID=orrecoadmin@orrecolabs;PWD=password123!')
+        odbc::dbConnect( odbc(), .connection_string= 'DRIVER={ODBC Driver 13 for SQL Server};PORT=1433;SERVER=;DATABASE=;UID=;PWD=password123!')
       }
     },
       error = function(e){
@@ -108,6 +116,7 @@ shinyServer(function(session,input, output) {
     print(connected())
     showNotification(ifelse(connected(), 'Database was connected to successfully','Database connection attempt failed'))
   })
+  
   #MySQL version
   update_tables <- observe({
     #gets all tables in database
@@ -143,7 +152,10 @@ shinyServer(function(session,input, output) {
   # })
   
   output$table_summary <- renderDataTable({
-    DT::datatable(input$data_summary_choose_table)
+    #ToDo
+    #not sure how best to render data table summary info here.
+    DT::datatable(data.frame())
+    #DT::datatable(input$data_summary_choose_table)
   })
   
   get_table_output_data <- reactive({
@@ -188,10 +200,7 @@ shinyServer(function(session,input, output) {
     rhandsontable(res)
   })
   
-  generate_update_set <- function(df){
-    print(names(df))
-    return(paste(sapply(names(df), function(name) paste(name, "=", df[1,name])), collapse=','))
-  }
+  
   
   update_table_row <- observeEvent(input$update_table_output_button,{
     row_data <- get_table_output_data()[input$table_output_rows_selected,
@@ -207,6 +216,21 @@ shinyServer(function(session,input, output) {
     print(update_statement)
     db_exection_res <- dbExecute(connection, update_statement)
     showNotification(paste('Updated',db_exection_res,'rows'))
+  })
+  
+  observeEvent(input$test_database_login,{
+    updateSelectInput(session,inputId = 'database_type', label = 'Please Select a Database Management System', choices = list('MySQL', 'SQLServer', 'SQLite', 'Postgres'), selected='MySQL')
+    #selectInput('database_type', label = 'Please Select a Database Management System',choices = list('MySQL', 'SQLServer', 'SQLite', 'Postgres'), selected = 'MySQL')
+    updateTextInput(session, 'server_name', label = 'Enter the server name (unless database is serverless):',value = 'mysql1.it.nuigalway.ie')
+    #textInput('server_name', label = 'Enter the server name (unless database is serverless):', value = 'mysql1.it.nuigalway.ie')
+    updateTextInput(session,'user_id',label = 'Enter your user id:', value = 'mydb2967sd')
+    #textInput('user_id', label = 'Enter your user id:', value = 'mydb2967sd')
+    updateTextInput(session,'password',label = 'Enter your password:', value = 'pu7xun')
+    #passwordInput('password', label = 'Enter your password:',value = 'pu7xun')
+    updateNumericInput(session,'port',label = 'Please enter the port number:', '3306')
+    #numericInput('port', label = 'Please enter the port number:', value = 3306, min = 0, max = 64000)
+    updateTextInput(session,'database',label = 'Please enter the database name', value='mydb2967')
+    #textInput('database', label = 'Please enter the database name:', value = 'mydb2967')
   })
   
   #if the user wants to query the database, let them
@@ -239,6 +263,27 @@ shinyServer(function(session,input, output) {
                     buttons = c('copy', 'csv', 'pdf', 'print')),
                     extensions = c('Buttons')
     )
+  })
+  
+  output$sample_test_report <- renderUI({
+    input$rerun_sample_tests
+    #run the sample tests and show the html output
+    #first should check that odbc
+    progress <- shiny::Progress$new()
+    on.exit(progress$close())
+    
+    progress$set(value = 0.30, message='Running test scripts')
+    wd <- getwd()
+    setwd(paste(wd, '/../Tests/SamplePythonDBTests',sep=''))
+    #system2('rm', './reports/database_uploading_tests/.*.html')
+    system2('C:/Users/13383861/Envs/test/Scripts/python.exe', 'TestSuite.py')
+    reports <- lapply(list.files('./reports/database_uploading_tests'), function(x) paste('./reports/database_uploading_tests', x, sep='/'))
+    progress$set(value = 0.9, message='Rendering HTML')
+    html <- paste(sapply(reports,includeHTML), collapse = '\n')
+    print(html)
+    setwd(wd)
+    progress$set(value = 1, message='HTML rendered')
+    return(HTML(html))
   })
   
 })
