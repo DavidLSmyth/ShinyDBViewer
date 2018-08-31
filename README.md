@@ -6,4 +6,4 @@ Run pip -install -r Requirments/requirements.txt to install the python requireme
 Run installPackages.R from Rstudio (or using the command line if R has been added to your system path).
 
 ## Example usage
-![Sample usage gif not found](https://github.com/DavidLSmyth/ShinyDBViewer/Figures/DemoUsage.gif)
+![Sample usage gif not found](https://github.com/DavidLSmyth/ShinyDBViewer/blob/master/Figures/DemoUsage.gif)
