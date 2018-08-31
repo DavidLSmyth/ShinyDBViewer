@@ -7,3 +7,5 @@ Run installPackages.R from Rstudio (or using the command line if R has been adde
 
 ## Example usage
 ![Sample usage gif not found](https://github.com/DavidLSmyth/ShinyDBViewer/blob/master/Figures/DemoUsage.gif)
+
+<video src="https://github.com/DavidLSmyth/ShinyDBViewer/blob/master/Figures/Desktop%202018.08.31%20-%2011.34.29.03.mp4" width="320" height="200" controls preload></video>
