@@ -24,10 +24,10 @@ jobs:
               script: |
                   const repo = 'DavidLSmyth/ShinyDBViewer'
                   const results = await github.search.issuesAndPullRequests({
-                    q: `repo:${repo} is:pr is:open created:<${date('-1 day')}`
+                    q: `repo:${repo} is:issue is:open created:<${date('-1 day')}`
                   })
                   const count = results.data.total_count
-                  const title = 'PRs older than 1 day'
+                  const title = 'Issues older than 1 day'
                   const color = (count > 10) ? 'red' : 'green'
                   return { value: count, title: title, color: color }
             - type: 'table'
