@@ -22,7 +22,7 @@ jobs:
             widgets:
             - type: number
               script: |
-                  const repo = 'libgit2/libgit2'
+                  const repo = 'DavidLSmyth/ShinyDBViewer'
                   const results = await github.search.issuesAndPullRequests({
                     q: `repo:${repo} is:pr is:open created:<${date('-1 day')}`
                   })
