@@ -28,7 +28,7 @@ jobs:
     - name: Publish Documentation
       run: |
         git add .
-        git config user.name 'Dashboard User'
+        git config user.name 'DavidLSmyth'
         git config user.email 'dljsmyth10@gmail.com'
         git commit -m 'Documentation update' --allow-empty
         git push origin gh-pages
