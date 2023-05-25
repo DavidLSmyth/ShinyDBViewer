@@ -23,6 +23,27 @@ jobs:
             - type: 'table'
               title: 'New Pull Requests (This Week)'
               issue_query: 'repo:libgit2/libgit2 is:open is:issue created:>{{ date("-7 days") }} sort:created-asc'
+            - type: graph
+              title: Issues
+              elements:
+              - title: P1
+                script: |
+                  const repo = 'libgit2/libgit2'
+                  const results = await github.search.issuesAndPullRequests({
+                    q: `repo:${repo} is:pr is:open created:<${date('-1 day')}`
+                  })
+                  const count = results.data.total_count
+                  const title = 'PRs older than 1 day'
+                  const color = (count > 10) ? 'red' : 'green'
+                  return { value: count, title: title, color: color }
+                color: green
+              - title: P2
+                value: 16
+              - title: Neopolitan
+                value: 15
+              - title: 'New Haven'
+                value: 1
+                color: red
         token: ${{ github.token }}
 
     - name: Publish Documentation
