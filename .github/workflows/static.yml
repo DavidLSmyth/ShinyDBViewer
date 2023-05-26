@@ -30,27 +30,27 @@ jobs:
                   const title = 'P1 Issue Count'
                   const color = (count > 10) ? 'red' : 'green'
                   return { value: count, title: title, color: color }
-              - type: number
-              script: |
-                  const repo = 'DavidLSmyth/ShinyDBViewer'
-                  const results = await github.search.issuesAndPullRequests({
-                    q: `repo:${repo} is:issue is:open label:p2 created:<${date('-1 day')}`
-                  })
-                  const count = results.data.total_count
-                  const title = 'P2 Issue Count'
-                  const color = (count > 10) ? 'red' : 'green'
-                  return { value: count, title: title, color: color }
-                  
-             - type: number
-              script: |
-                  const repo = 'DavidLSmyth/ShinyDBViewer'
-                  const results = await github.search.issuesAndPullRequests({
-                    q: `repo:${repo} is:issue is:open label:p2 created:<${date('-1 day')}`
-                  })
-                  const count = results.data.total_count
-                  const title = 'PRs closed this week'
-                  const color = (count > 10) ? 'red' : 'green'
-                  return { value: count, title: title, color: color }
+            - type: number
+            script: |
+                const repo = 'DavidLSmyth/ShinyDBViewer'
+                const results = await github.search.issuesAndPullRequests({
+                  q: `repo:${repo} is:issue is:open label:p2 created:<${date('-1 day')}`
+                })
+                const count = results.data.total_count
+                const title = 'P2 Issue Count'
+                const color = (count > 10) ? 'red' : 'green'
+                return { value: count, title: title, color: color }
+
+           - type: number
+            script: |
+                const repo = 'DavidLSmyth/ShinyDBViewer'
+                const results = await github.search.issuesAndPullRequests({
+                  q: `repo:${repo} is:issue is:open label:p2 created:<${date('-1 day')}`
+                })
+                const count = results.data.total_count
+                const title = 'PRs closed this week'
+                const color = (count > 10) ? 'red' : 'green'
+                return { value: count, title: title, color: color }
                   
             - type: 'table'
               title: 'Merged Pull Requests (For This Week)'
