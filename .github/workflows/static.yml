@@ -54,7 +54,7 @@ jobs:
                   
             - type: 'table'
               title: 'Merged Pull Requests (For This Week)'
-              issue_query: 'repo:libgit2/libgit2 is:pr author:DavidLSmyth is:closed sort:updated-desc is:open is:issue merged:{{ date("-7 days") }}..{{ date("-1 days") }} sort:created-asc'
+              issue_query: 'repo:libgit2/libgit2 is:pr author:DavidLSmyth is:closed merged:{{ date("-7 days") }}..{{ date("-1 days") }} sort:created-asc'
             - type: graph
               title: Issues
               elements:
