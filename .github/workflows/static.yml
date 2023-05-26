@@ -41,7 +41,7 @@ jobs:
                   const color = (count > 10) ? 'red' : 'green'
                   return { value: count, title: title, color: color }
                   
-               - type: number
+             - type: number
               script: |
                   const repo = 'DavidLSmyth/ShinyDBViewer'
                   const results = await github.search.issuesAndPullRequests({
